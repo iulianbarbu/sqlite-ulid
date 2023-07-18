@@ -9,6 +9,8 @@ select ulid(), null as '           ulid_bytes()            ', ulid_with_prefix("
 
 select ulid_datetime('01GMP2G8ZG6PMKWYVKS62TTA41');
 
+-- version 4
+select uuid_to_ulid('9421eb94-a98d-431e-b297-d02df7341b8d');
 
 create table events(
   id text primary key,

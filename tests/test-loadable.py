@@ -45,7 +45,7 @@ FUNCTIONS = [
   'ulid_version',
   'ulid_with_datetime',
   'ulid_with_prefix',
-  
+  'uuid_to_ulid'
   
 ]
 
@@ -103,12 +103,15 @@ class TestUlid(unittest.TestCase):
     self.assertEqual(ulid_datetime('u_01gqqt6dz6p00680vw747t8vs5'), '2023-01-26 19:52:09.446')
     #self.assertEqual(ulid_datetime(b'0185d0c5362761312e0483e4c9e3ec5d'), 1671483106288)
     self.assertEqual(ulid_datetime(b'\x01\x85\xe5\xb1\xc5\xe9\xfb\xa7\xf5\xcfSJ\x13\xe4.\xa3'), '2023-01-24 21:31:51.145')
-  
-  
+
+  def test_uuid_to_ulid(self):
+    uuid_to_ulid = lambda uuid: db.execute("select uuid_to_ulid(?)", [uuid]).fetchone()[0]
+    # Version 4
+    self.assertEqual(uuid_to_ulid('9421eb94-a98d-431e-b297-d02df7341b8d'), '4M47NS9ACD8CFB55YG5QVK86WD')
 
 class TestCoverage(unittest.TestCase):                                      
   def test_coverage(self):                                                      
-    test_methods = [method for method in dir(TestUlid) if method.startswith('test_ulid')]
+    test_methods = [method for method in dir(TestUlid) if method.startswith('test_')]
     funcs_with_tests = set([x.replace("test_", "") for x in test_methods])
     for func in FUNCTIONS:
       self.assertTrue(func in funcs_with_tests, f"{func} does not have cooresponding test in {funcs_with_tests}")

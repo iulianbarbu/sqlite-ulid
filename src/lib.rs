@@ -3,6 +3,7 @@ use std::time::{Duration, SystemTime};
 use sqlite_loadable::api::ValueType;
 use sqlite_loadable::prelude::*;
 use sqlite_loadable::{api, define_scalar_function, Error, Result};
+use std::convert::From;
 use ulid::Ulid;
 
 const DATETIME_FMT: &str = "%Y-%m-%d %H:%M:%S.%3f";
@@ -156,6 +157,35 @@ pub fn ulid_datetime(context: *mut sqlite3_context, values: &[*mut sqlite3_value
 
 // TODO ulid_datetime() to ulid_extract_datetime(), ulid_extract_random()
 
+// Convert Uuid to Ulid.
+pub fn uuid_to_ulid(context: *mut sqlite3_context, values: &[*mut sqlite3_value]) -> Result<()> {
+    let input = values.get(0).expect("1st argument required");
+    let ulid = match api::value_type(input) {
+        ValueType::Text => {
+            let input = api::value_text(input)?;
+            // if input text is longer than a normal ULID, it might be prefixed - so try to strip
+            // a prefix and extract the underlying ULID
+            match uuid::Uuid::parse_str(input) {
+                Ok(res) => ulid::Ulid::from(res),
+                Err(e) => {
+                    return Err(Error::new_message(
+                        format!("invalid Uuid input to uuid_to_ulid(): {}", e).as_str(),
+                    ))
+                }
+            }
+        }
+        ValueType::Blob => Ulid(u128::from_be_bytes(
+            api::value_blob(input)
+                .try_into()
+                .map_err(|_| Error::new_message("invalid BLOB input to ulid_datetime()"))?,
+        )),
+        _ => return Err(Error::new_message("unsupported input for ulid_datetime")),
+    };
+
+    api::result_text(context, ulid.to_string())?;
+    Ok(())
+}
+
 #[sqlite_entrypoint]
 pub fn sqlite3_ulid_init(db: *mut sqlite3) -> Result<()> {
     define_scalar_function(
@@ -196,6 +226,13 @@ pub fn sqlite3_ulid_init(db: *mut sqlite3) -> Result<()> {
         "ulid_datetime",
         1,
         ulid_datetime,
+        FunctionFlags::UTF8 | FunctionFlags::DETERMINISTIC,
+    )?;
+    define_scalar_function(
+        db,
+        "uuid_to_ulid",
+        1,
+        uuid_to_ulid,
         FunctionFlags::UTF8 | FunctionFlags::DETERMINISTIC,
     )?;
     Ok(())

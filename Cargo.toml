@@ -11,8 +11,9 @@ license = "MIT/Apache-2.0"
 
 [dependencies]
 sqlite-loadable = "0.0.5"
-ulid = "1.0.0"
+ulid = { version = "1.0.0", features = ["uuid"] }
 chrono = "0.4.23"
+uuid = "1.4.1"
 
 [lib]
 crate-type=["lib", "staticlib", "cdylib"]
