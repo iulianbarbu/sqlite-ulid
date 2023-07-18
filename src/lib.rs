@@ -157,7 +157,8 @@ pub fn ulid_datetime(context: *mut sqlite3_context, values: &[*mut sqlite3_value
 
 // TODO ulid_datetime() to ulid_extract_datetime(), ulid_extract_random()
 
-// Convert Uuid to Ulid.
+// Converts Uuids strings to Ulids strings.
+// uuid_to_ulid('9421eb94-a98d-431e-b297-d02df7341b8d') -> '4M47NS9ACD8CFB55YG5QVK86WD'
 pub fn uuid_to_ulid(context: *mut sqlite3_context, values: &[*mut sqlite3_value]) -> Result<()> {
     let input = values.get(0).expect("1st argument required");
     let ulid = match api::value_type(input) {

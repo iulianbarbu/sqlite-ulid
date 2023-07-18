@@ -68,6 +68,16 @@ Generates a new ULID string based on the `datetime`. This can be helpful for giv
 select ulid_datetime('2023-01-20 20:00:00.400'); -- '01GQ8C8FWG0W1B5H3W5304049S'
 ```
 
+<h3 name="uuid_to_ulid"><code>uuid_to_ulid(id)</code></h3>
+
+Converts an `Uuid` string to an `Ulid` string. This can be helpful for those who want to convert Uuid columns to Ulid.
+Note: This is tested to work only for UUID v4. It is not guaranteed to work against other UUID versions. Tests are required
+for other versions than v4.
+
+```sql
+select uuid_to_ulid('9421eb94-a98d-431e-b297-d02df7341b8d'); -- '4M47NS9ACD8CFB55YG5QVK86WD'
+```
+
 <h3 name="ulid_datetime"><code>ulid_datetime(ulid)</code></h3>
 
 Extract the timestamp component from the given ULID. The `ulid` parameter can be a string from the [`ulid()`](#ulid) function, a string from the [`ulid_with_prefix()`](#ulid_with_prefix) function, or a blob from the [`ulid_bytes`](#ulid_bytes) function. Returns a text timestamp with `YYYY-MM-DD HH:MM:SS.SSS` format, which can be used with the builtin [`datetime()`](https://www.sqlite.org/lang_datefunc.html) function.
