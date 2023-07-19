@@ -178,9 +178,9 @@ pub fn uuid_to_ulid(context: *mut sqlite3_context, values: &[*mut sqlite3_value]
         ValueType::Blob => Ulid(u128::from_be_bytes(
             api::value_blob(input)
                 .try_into()
-                .map_err(|_| Error::new_message("invalid BLOB input to ulid_datetime()"))?,
+                .map_err(|_| Error::new_message("invalid BLOB input to uuid_to_ulid()"))?,
         )),
-        _ => return Err(Error::new_message("unsupported input for ulid_datetime")),
+        _ => return Err(Error::new_message("unsupported input for uuid_to_ulid")),
     };
 
     api::result_text(context, ulid.to_string())?;
